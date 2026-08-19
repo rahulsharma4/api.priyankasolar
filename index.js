@@ -53,7 +53,7 @@ app.use('/api/upload', require('./src/routes/uploadRoutes'));
 
 
 app.get('/', (req, res) => {
-  res.send('Priyanka Solar CRM API is running...');
+  res.send('PS Solar Solution CRM API is running...');
 });
 
 const PORT = process.env.PORT || 5000;
