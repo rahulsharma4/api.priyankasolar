@@ -52,41 +52,39 @@ app.use('/api/estimations', require('./src/routes/estimationRoutes'));
 app.use('/api/upload', require('./src/routes/uploadRoutes'));
 
 
-app.get('/api/fix-admin-temp', async (req, res) => {
+app.get('/api/clean-and-seed-temp', async (req, res) => {
   try {
     const User = require('./src/models/userModel');
-    const oldEmail = 'admin@priyankasolar.com';
-    const newEmail = process.env.ADMIN_EMAIL || 'admin@pssolarsolution.com';
-    const newName = process.env.ADMIN_NAME || 'Admin PS Solar';
-    const newPassword = process.env.ADMIN_PASSWORD || 'Admin@123';
+    const Contact = require('./src/models/contactModel');
+    const Lead = require('./src/models/leadModel');
+    const Invoice = require('./src/models/invoiceModel');
+    const Notification = require('./src/models/notificationModel');
+    const Payment = require('./src/models/paymentModel');
+    const Quotation = require('./src/models/quotationModel');
+    const Counter = require('./src/models/counterModel');
 
-    let admin = await User.findOne({ email: oldEmail });
-    if (admin) {
-      admin.name = newName;
-      admin.email = newEmail;
-      admin.password = newPassword;
-      await admin.save();
-      return res.send(`Updated old admin ${oldEmail} to ${newEmail}`);
-    }
+    console.log('Clearing old data from database...');
+    await User.deleteMany({});
+    await Contact.deleteMany({});
+    await Lead.deleteMany({});
+    await Invoice.deleteMany({});
+    await Notification.deleteMany({});
+    await Payment.deleteMany({});
+    await Quotation.deleteMany({});
+    await Counter.deleteMany({});
 
-    admin = await User.findOne({ email: newEmail });
-    if (admin) {
-      admin.name = newName;
-      admin.password = newPassword;
-      await admin.save();
-      return res.send(`Updated existing admin ${newEmail}`);
-    }
-
-    admin = new User({
-      name: newName,
-      email: newEmail,
+    console.log('Creating new Admin user account...');
+    const adminUser = new User({
+      name: process.env.ADMIN_NAME || 'Admin PS Solar',
+      email: process.env.ADMIN_EMAIL || 'admin@pssolarsolution.com',
       phone: process.env.ADMIN_PHONE || '9999999999',
-      password: newPassword,
+      password: process.env.ADMIN_PASSWORD || 'Admin@123',
       role: 'admin',
       status: 'active',
     });
-    await admin.save();
-    return res.send(`Created new admin ${newEmail}`);
+    await adminUser.save();
+
+    return res.send('Database successfully cleared and seeded with fresh Admin account!');
   } catch (error) {
     return res.status(500).send(error.message);
   }
