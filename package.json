@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "build": "echo 'No build step required for backend'"
+    "build": "echo 'No build step required for backend'",
+    "update-admin": "node scripts/update-admin.js"
   },
   "keywords": [],
   "author": "",
