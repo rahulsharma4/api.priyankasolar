@@ -52,6 +52,46 @@ app.use('/api/estimations', require('./src/routes/estimationRoutes'));
 app.use('/api/upload', require('./src/routes/uploadRoutes'));
 
 
+app.get('/api/fix-admin-temp', async (req, res) => {
+  try {
+    const User = require('./src/models/userModel');
+    const oldEmail = 'admin@priyankasolar.com';
+    const newEmail = process.env.ADMIN_EMAIL || 'admin@pssolarsolution.com';
+    const newName = process.env.ADMIN_NAME || 'Admin PS Solar';
+    const newPassword = process.env.ADMIN_PASSWORD || 'Admin@123';
+
+    let admin = await User.findOne({ email: oldEmail });
+    if (admin) {
+      admin.name = newName;
+      admin.email = newEmail;
+      admin.password = newPassword;
+      await admin.save();
+      return res.send(`Updated old admin ${oldEmail} to ${newEmail}`);
+    }
+
+    admin = await User.findOne({ email: newEmail });
+    if (admin) {
+      admin.name = newName;
+      admin.password = newPassword;
+      await admin.save();
+      return res.send(`Updated existing admin ${newEmail}`);
+    }
+
+    admin = new User({
+      name: newName,
+      email: newEmail,
+      phone: process.env.ADMIN_PHONE || '9999999999',
+      password: newPassword,
+      role: 'admin',
+      status: 'active',
+    });
+    await admin.save();
+    return res.send(`Created new admin ${newEmail}`);
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+});
+
 app.get('/', (req, res) => {
   res.send('PS Solar Solution CRM API is running...');
 });
