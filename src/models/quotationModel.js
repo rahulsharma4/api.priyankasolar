@@ -25,6 +25,11 @@ const quotationSchema = mongoose.Schema(
     billingName: {
       type: String,
     },
+    quotationFormat: {
+      type: String,
+      enum: ['Standard', 'SinglePage'],
+      default: 'SinglePage'
+    },
     pricingMode: {
       type: String,
       enum: ['Dynamic', 'Custom'],
@@ -77,6 +82,19 @@ const quotationSchema = mongoose.Schema(
     installationDetails: { type: String, default: 'Complete Installation & Setup' },
     installationMake: { type: String, default: '' },
     installationQty: { type: String, default: 'Each' },
+
+    netMeteringDetails: { type: String, default: 'As applicable (MSEDCL / DISCOM)' },
+    installationScopeAmount: { type: Number, default: 0 },
+    installationScopeDetails: { type: String, default: 'Installation & Dealer Scope' },
+    otherChargesAmount: { type: Number, default: 0 },
+    otherChargesDetails: { type: String, default: 'Excluding Metal GST / Other Charges' },
+
+    customTechSpecs: [
+      {
+        particular: { type: String },
+        details: { type: String }
+      }
+    ],
 
     offering: { type: String }, // e.g. "Priyanka Solar"
     gsmBased: { type: String, default: 'No' },

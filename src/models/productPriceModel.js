@@ -5,7 +5,6 @@ const productPriceSchema = mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: ['System Size', 'Solar Panel', 'Inverter Details'],
     },
     name: {
       type: String,

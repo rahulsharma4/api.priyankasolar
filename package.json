@@ -7,7 +7,9 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "build": "echo 'No build step required for backend'",
-    "update-admin": "node scripts/update-admin.js"
+    "update-admin": "node scripts/update-admin.js",
+    "force-update-db": "node scripts/force-update-db.js",
+    "test-admin": "node scripts/test_simple.js"
   },
   "keywords": [],
   "author": "",

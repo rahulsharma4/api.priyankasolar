@@ -14,47 +14,41 @@ const updateAdmin = async () => {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('MongoDB Connected successfully!');
 
-    const oldEmail = 'admin@priyankasolar.com';
-    const newEmail = process.env.ADMIN_EMAIL || 'info@pssolar.co.in';
-    const newName = process.env.ADMIN_NAME || 'Admin PS Solar';
-    const newPassword = process.env.ADMIN_PASSWORD || 'Admin@123';
+    const targetEmail = 'admin@pssolarsolution.com';
+    const targetPassword = 'Admin@1234';
+    const targetName = 'Admin PS Solar';
 
-    // 1. Try to find the old admin user and update it
-    let admin = await User.findOne({ email: oldEmail });
-    if (admin) {
-      console.log('Found old admin account. Updating details...');
-      admin.name = newName;
-      admin.email = newEmail;
-      admin.password = newPassword;
-      await admin.save();
-      console.log(`Updated admin account: ${oldEmail} -> ${newEmail}`);
-    } else {
-      // 2. Try to find the new admin user
-      admin = await User.findOne({ email: newEmail });
-      if (admin) {
-        console.log('Admin account with new email already exists. Updating password and name...');
-        admin.name = newName;
-        admin.password = newPassword;
+    // Find any existing admin accounts or users with target email
+    let admins = await User.find({ $or: [{ role: 'admin' }, { email: targetEmail }, { email: 'admin@priyankasolar.com' }, { email: 'info@pssolar.co.in' }] });
+
+    if (admins.length > 0) {
+      console.log(`Found ${admins.length} admin accounts. Updating all to ${targetEmail} / ${targetPassword}...`);
+      for (let admin of admins) {
+        admin.name = targetName;
+        admin.email = targetEmail;
+        admin.password = targetPassword;
+        admin.status = 'active';
+        admin.isDeleted = false;
         await admin.save();
-        console.log(`Updated existing admin account: ${newEmail}`);
-      } else {
-        // 3. Create a new admin user if neither exists
-        console.log('No admin account found. Creating new admin user...');
-        admin = new User({
-          name: newName,
-          email: newEmail,
-          phone: process.env.ADMIN_PHONE || '9999999999',
-          password: newPassword,
-          role: 'admin',
-          status: 'active',
-        });
-        await admin.save();
-        console.log(`Created new admin user: ${newEmail}`);
+        console.log(`Updated admin ID: ${admin._id} -> ${targetEmail}`);
       }
+    } else {
+      console.log('No admin account found. Creating new admin user...');
+      const admin = new User({
+        name: targetName,
+        email: targetEmail,
+        phone: '9999999999',
+        password: targetPassword,
+        role: 'admin',
+        status: 'active',
+        isDeleted: false
+      });
+      await admin.save();
+      console.log(`Created new admin user: ${targetEmail}`);
     }
 
     console.log('--------------------------------------------------');
-    console.log('Admin User Setup Completed Successfully.');
+    console.log('Admin User Reset Completed Successfully in Database.');
     process.exit(0);
   } catch (error) {
     console.error('Error updating admin:', error);

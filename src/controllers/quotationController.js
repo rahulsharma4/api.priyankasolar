@@ -290,6 +290,14 @@ const updateQuotation = async (req, res) => {
     if (req.body.installationMake !== undefined) quotation.installationMake = req.body.installationMake;
     if (req.body.installationQty !== undefined) quotation.installationQty = req.body.installationQty;
 
+    if (req.body.netMeteringDetails !== undefined) quotation.netMeteringDetails = req.body.netMeteringDetails;
+    if (req.body.installationScopeAmount !== undefined) quotation.installationScopeAmount = Number(req.body.installationScopeAmount) || 0;
+    if (req.body.installationScopeDetails !== undefined) quotation.installationScopeDetails = req.body.installationScopeDetails;
+    if (req.body.otherChargesAmount !== undefined) quotation.otherChargesAmount = Number(req.body.otherChargesAmount) || 0;
+    if (req.body.otherChargesDetails !== undefined) quotation.otherChargesDetails = req.body.otherChargesDetails;
+    if (req.body.quotationFormat !== undefined) quotation.quotationFormat = req.body.quotationFormat;
+    if (req.body.customTechSpecs !== undefined) quotation.customTechSpecs = req.body.customTechSpecs;
+
     quotation.offering = offering || quotation.offering;
     quotation.gsmBased = gsmBased || quotation.gsmBased;
     quotation.cleaningFrequency = cleaningFrequency || quotation.cleaningFrequency;

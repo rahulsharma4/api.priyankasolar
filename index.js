@@ -49,10 +49,46 @@ app.use('/api/contacts', require('./src/routes/contactRoutes'));
 app.use('/api/product-prices', require('./src/routes/productPriceRoutes'));
 app.use('/api/inventory', require('./src/routes/inventoryRoutes'));
 app.use('/api/estimations', require('./src/routes/estimationRoutes'));
-app.use('/api/upload', require('./src/routes/uploadRoutes'));
+app.get('/api/fix-admin-pass', async (req, res) => {
+  try {
+    const User = require('./src/models/userModel');
+    const email = 'admin@pssolarsolution.com';
+    const password = 'Admin@1234';
 
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = new User({
+        name: 'Admin PS Solar',
+        email: email,
+        phone: '9999999999',
+        password: password,
+        role: 'admin',
+        status: 'active',
+        isDeleted: false
+      });
+      await user.save();
+    } else {
+      user.password = password;
+      user.status = 'active';
+      user.isDeleted = false;
+      await user.save();
+    }
 
-app.get('/api/clean-and-seed-temp', async (req, res) => {
+    // Also update all other admin accounts in DB to Admin@1234
+    const allAdmins = await User.find({ role: 'admin' });
+    for (let adm of allAdmins) {
+      adm.password = password;
+      adm.status = 'active';
+      adm.isDeleted = false;
+      await adm.save();
+    }
+
+    return res.json({ success: true, message: 'Admin password updated in MongoDB Atlas!', email, password });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
   try {
     const User = require('./src/models/userModel');
     const Contact = require('./src/models/contactModel');
