@@ -401,6 +401,12 @@ const updateEmiStatus = async (req, res) => {
 
     // Optional: Also push to fulfillmentHistory so we track it? Let's just update the field.
     const updatedQuotation = await quotation.save();
+    res.json(updatedQuotation);
+  } catch (error) {
+    console.error('EMI Status Update Error:', error);
+    res.status(400).json({ message: error.message || 'Failed to update EMI status' });
+  }
+};
 
 // @desc    Delete quotation
 // @route   DELETE /api/quotations/:id
