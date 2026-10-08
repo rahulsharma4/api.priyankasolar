@@ -402,11 +402,22 @@ const updateEmiStatus = async (req, res) => {
     // Optional: Also push to fulfillmentHistory so we track it? Let's just update the field.
     const updatedQuotation = await quotation.save();
 
-    res.json(updatedQuotation);
+// @desc    Delete quotation
+// @route   DELETE /api/quotations/:id
+// @access  Private
+const deleteQuotation = async (req, res) => {
+  try {
+    const quotation = await Quotation.findById(req.params.id);
+
+    if (!quotation) {
+      return res.status(404).json({ message: 'Quotation not found' });
+    }
+
+    await quotation.deleteOne();
+    res.json({ message: 'Quotation removed successfully' });
   } catch (error) {
-    console.error('EMI Status Update Error:', error);
-    res.status(400).json({ message: error.message || 'Failed to update EMI status' });
+    res.status(500).json({ message: error.message });
   }
 };
 
-module.exports = { createQuotation, getQuotations, getQuotationById, updateQuotation, updateFulfillmentStatus, updateEmiStatus };
+module.exports = { createQuotation, getQuotations, getQuotationById, updateQuotation, deleteQuotation, updateFulfillmentStatus, updateEmiStatus };

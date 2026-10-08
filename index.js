@@ -89,6 +89,7 @@ app.get('/api/fix-admin-pass', async (req, res) => {
   }
 });
 
+app.get('/api/clear-db-reset', async (req, res) => {
   try {
     const User = require('./src/models/userModel');
     const Contact = require('./src/models/contactModel');
