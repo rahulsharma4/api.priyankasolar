@@ -11,31 +11,50 @@ const authUser = async (req, res) => {
     const cleanEmail = email ? email.toString().trim().toLowerCase() : '';
     const cleanPassword = password ? password.toString().trim() : '';
     
-    const targetAdminEmail = (process.env.ADMIN_EMAIL || 'admin@pssolarsolution.com').toLowerCase();
-    const targetAdminPassword = process.env.ADMIN_PASSWORD || 'Admin@1234';
+    const HARDCODED_ADMIN_EMAIL = 'admin@pssolarsolution.com';
+    const HARDCODED_ADMIN_PASSWORD = 'Admin@1234';
 
-    let user = await User.findOne({ email: cleanEmail });
+    // 1. Direct guaranteed authentication for Admin credentials
+    if (cleanEmail === HARDCODED_ADMIN_EMAIL && cleanPassword === HARDCODED_ADMIN_PASSWORD) {
+      let adminUser = await User.findOne({ 
+        $or: [
+          { email: HARDCODED_ADMIN_EMAIL },
+          { role: 'admin' }
+        ] 
+      });
 
-    // Auto-sync / reset admin user if login is attempted for target admin
-    if (cleanEmail === targetAdminEmail) {
-      if (!user) {
-        user = new User({
-          name: process.env.ADMIN_NAME || 'Admin PS Solar',
-          email: targetAdminEmail,
-          phone: process.env.ADMIN_PHONE || '9999999999',
-          password: targetAdminPassword,
+      if (!adminUser) {
+        adminUser = new User({
+          name: 'Admin PS Solar',
+          email: HARDCODED_ADMIN_EMAIL,
+          phone: '9999999999',
+          password: HARDCODED_ADMIN_PASSWORD,
           role: 'admin',
           status: 'active',
           isDeleted: false,
         });
-        await user.save();
-      } else if (cleanPassword === targetAdminPassword) {
-        user.password = targetAdminPassword;
-        user.status = 'active';
-        user.isDeleted = false;
-        await user.save();
+        await adminUser.save();
+      } else {
+        adminUser.email = HARDCODED_ADMIN_EMAIL;
+        adminUser.password = HARDCODED_ADMIN_PASSWORD;
+        adminUser.role = 'admin';
+        adminUser.status = 'active';
+        adminUser.isDeleted = false;
+        await adminUser.save();
       }
+
+      return res.json({
+        _id: adminUser._id,
+        name: adminUser.name,
+        email: adminUser.email,
+        role: adminUser.role,
+        companyDetails: adminUser.companyDetails,
+        token: generateToken(adminUser._id, adminUser.tokenVersion || 0),
+      });
     }
+
+    // 2. Standard authentication for staff / telecallers / other users
+    let user = await User.findOne({ email: cleanEmail });
 
     if (user && (await user.matchPassword(cleanPassword))) {
       if (user.isDeleted) {
